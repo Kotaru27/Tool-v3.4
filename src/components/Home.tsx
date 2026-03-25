@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image as ImageIcon, FileText, Scissors, Clapperboard, Film, Link2, ArrowRight } from 'lucide-react';
+import { Image as ImageIcon, FileText, Scissors, Clapperboard, Film, Link2, ArrowRight, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ToolId } from '../App';
 
@@ -80,6 +80,12 @@ export default function Home({ onSelectTool }: HomeProps) {
           description="Generate Links"
           icon={<Link2 className="w-6 h-6" />}
           onClick={() => onSelectTool('adlinks')}
+        />
+        <HomeCard
+          title="ALDI Ad Downloader"
+          description="Download Ad Assets"
+          icon={<Download className="w-6 h-6" />}
+          onClick={() => onSelectTool('addownload')}
         />
       </motion.div>
     </div>

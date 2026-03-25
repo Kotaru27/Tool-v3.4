@@ -97,7 +97,7 @@ export default function App() {
               <NavItem id="story" icon={<Clapperboard />} active={activeTool === 'story'} onClick={() => setActiveTool('story')} title="Storyboard" color={ToolColors.story.hex} />
               <NavItem id="stills" icon={<Film />} active={activeTool === 'stills'} onClick={() => setActiveTool('stills')} title="Video Stills" color={ToolColors.stills.hex} />
               <NavItem id="adlinks" icon={<Link2 />} active={activeTool === 'adlinks'} onClick={() => setActiveTool('adlinks')} title="Ad Links" color={ToolColors.adlinks.hex} />
-              <NavItem id="addownload" icon={<Download />} active={activeTool === 'addownload'} onClick={() => setActiveTool('addownload')} title="Ad Downloader" color={ToolColors.addownload.hex} />x
+              <NavItem id="addownload" icon={<Download />} active={activeTool === 'addownload'} onClick={() => setActiveTool('addownload')} title="Ad Downloader" color={ToolColors.addownload.hex} />
             </motion.nav>
           )}
         </AnimatePresence>
