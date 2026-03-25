@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, LayoutGrid, Image as ImageIcon, FileText, Scissors, Clapperboard, Film, Link2 } from 'lucide-react';
+import { Box, LayoutGrid, Image as ImageIcon, FileText, Scissors, Clapperboard, Film, Link2, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Core } from './utils/core';
 
@@ -10,8 +10,9 @@ import ImageSplitter from './components/ImageSplitter';
 import Storyboard from './components/Storyboard';
 import VideoStills from './components/VideoStills';
 import AdLinkGen from './components/AdLinkGen';
+import AdDownloadTool from './components/AdDownloadTool';
 
-export type ToolId = 'home' | 'logo' | 'pdf' | 'split' | 'story' | 'stills' | 'adlinks';
+export type ToolId = 'home' | 'logo' | 'pdf' | 'split' | 'story' | 'stills' | 'adlinks'| 'addownload';
 
 const ToolColors: Record<ToolId, { hex: string, rgb: string }> = {
   home: { hex: '#FFFFFF', rgb: '255, 255, 255' },
@@ -21,6 +22,7 @@ const ToolColors: Record<ToolId, { hex: string, rgb: string }> = {
   story: { hex: '#FFFFFF', rgb: '255, 255, 255' },
   stills: { hex: '#FFFFFF', rgb: '255, 255, 255' },
   adlinks: { hex: '#FFFFFF', rgb: '255, 255, 255' },
+  addownload: { hex: '#FFFFFF', rgb: '255, 255, 255' },
 };
 
 export default function App() {
@@ -55,6 +57,7 @@ export default function App() {
       case 'story': return <Storyboard />;
       case 'stills': return <VideoStills />;
       case 'adlinks': return <AdLinkGen />;
+      case 'addownload': return <AdDownloadTool />;
       default: return <Home onSelectTool={setActiveTool} />;
     }
   };
@@ -94,6 +97,7 @@ export default function App() {
               <NavItem id="story" icon={<Clapperboard />} active={activeTool === 'story'} onClick={() => setActiveTool('story')} title="Storyboard" color={ToolColors.story.hex} />
               <NavItem id="stills" icon={<Film />} active={activeTool === 'stills'} onClick={() => setActiveTool('stills')} title="Video Stills" color={ToolColors.stills.hex} />
               <NavItem id="adlinks" icon={<Link2 />} active={activeTool === 'adlinks'} onClick={() => setActiveTool('adlinks')} title="Ad Links" color={ToolColors.adlinks.hex} />
+              <NavItem id="addownload" icon={<Download />} active={activeTool === 'addownload'} onClick={() => setActiveTool('addownload')} title="Ad Downloader" color={ToolColors.addownload.hex} />x
             </motion.nav>
           )}
         </AnimatePresence>
