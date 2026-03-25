@@ -186,13 +186,92 @@ export default function AdDownloadTool() {
     copyToClipboard(names);
   };
 
-  const copyBucketTable = () => {
-    const table = ads.map(ad => `${ad.adNo}\t${ad.finalName}`).join('\n');
-    copyToClipboard(table);
+const getBucketData = () => {
+    if (!file) return Promise.resolve([]);
+    
+    return new Promise<any[]>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        if (workbook.SheetNames.length < 2) {
+          resolve([]);
+          return;
+        }
+        
+        const sheet = workbook.Sheets[workbook.SheetNames[1]];
+        if (!sheet) {
+          resolve([]);
+          return;
+        }
+        
+        const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
+        let rows = [];
+        
+        const adTypeMap: Record<string, string> = {};
+        ads.forEach(ad => {
+          const normalizedType = ad.adType.toString().replace(/\s+/g, '').replace(/_/g, '').toUpperCase();
+          adTypeMap[normalizedType] = ad.adNo;
+        });
+
+        for (let r = 1; r <= range.e.r; r++) {
+          let bucketCell = sheet[XLSX.utils.encode_cell({ r: r, c: 0 })];
+          if (!bucketCell) continue;
+
+          let bucket = bucketCell.v.toString().trim();
+          let bucketAds = [];
+
+          for (let c = 1; c <= range.e.c; c++) {
+            let adCell = sheet[XLSX.utils.encode_cell({ r: r, c: c })];
+            if (!adCell || !adCell.v) continue;
+
+            let name = adCell.v.toString().replace(/\s+/g, '').replace(/_/g, '').toUpperCase();
+            let adNo = adTypeMap[name];
+
+            if (adNo) bucketAds.push(adNo);
+          }
+
+          if (bucketAds.length > 0) {
+            rows.push({ bucket: bucket, ads: bucketAds });
+          }
+        }
+        resolve(rows);
+      };
+      reader.readAsArrayBuffer(file);
+    });
   };
 
-  const copyScript = () => {
-    const script = ads.map(ad => `wget -O "${ad.finalName}" "${ad.link}"`).join('\n');
+  const copyBucketTable = async () => {
+    const rows = await getBucketData();
+    if (rows.length === 0) {
+      showToast("No bucket data found on Sheet 2.");
+      return;
+    }
+
+    let output = "Bucket\tAds\n";
+    rows.forEach(r => {
+      output += r.bucket + "\t" + r.ads.map((a: string) => "'" + a + "'").join(",") + "\n";
+    });
+
+    copyToClipboard(output);
+  };
+
+  const copyScript = async () => {
+    const rows = await getBucketData();
+    if (rows.length === 0) {
+      showToast("No bucket data found on Sheet 2.");
+      return;
+    }
+
+    let script = "var s = set()\n\n";
+    rows.forEach(r => {
+      script += "// Bucket " + r.bucket + "\n";
+      script += "if (f('cq42000').any('" + r.bucket + "')) {\n";
+      script += "    s = s.union(set(" + r.ads.map((a: string) => "'" + a + "'").join(",") + "))\n";
+      script += "}\n\n";
+    });
+
     copyToClipboard(script);
   };
 

@@ -82,7 +82,7 @@ export default function Home({ onSelectTool }: HomeProps) {
           onClick={() => onSelectTool('adlinks')}
         />
         <HomeCard
-          title="ALDI Ad Downloader"
+          title="Ad Downloader"
           description="Download Ad Assets"
           icon={<Download className="w-6 h-6" />}
           onClick={() => onSelectTool('addownload')}
