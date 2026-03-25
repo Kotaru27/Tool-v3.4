@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { Upload, Download, Copy, CheckCircle2, FileSpreadsheet } from 'lucide-react';
+import { Upload, Download, Copy, CheckCircle2, FileSpreadsheet, List, Code } from 'lucide-react';
 
 interface AdItem {
   adNo: string;
@@ -181,6 +181,20 @@ export default function AdDownloadTool() {
 
     setAds(prev => prev.map(item => item.adNo === ad.adNo ? { ...item, downloaded: true } : item));
   };
+  const copyAllNames = () => {
+    const names = ads.map(ad => ad.finalName).join('\n');
+    copyToClipboard(names);
+  };
+
+  const copyBucketTable = () => {
+    const table = ads.map(ad => `${ad.adNo}\t${ad.finalName}`).join('\n');
+    copyToClipboard(table);
+  };
+
+  const copyScript = () => {
+    const script = ads.map(ad => `wget -O "${ad.finalName}" "${ad.link}"`).join('\n');
+    copyToClipboard(script);
+  };
 
   const pendingAds = ads.filter(a => !a.downloaded);
   const downloadedAds = ads.filter(a => a.downloaded);
@@ -224,11 +238,32 @@ export default function AdDownloadTool() {
           </div>
         </div>
 
-        {ads.length > 0 && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center gap-4">
+      {ads.length > 0 && (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
             <div className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4" />
               {ads.length} Ads Detected
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={copyAllNames}
+                className="px-4 py-2 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <Copy className="w-4 h-4" /> Copy All Names
+              </button>
+              <button 
+                onClick={copyBucketTable}
+                className="px-4 py-2 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <List className="w-4 h-4" /> Copy Bucket Table
+              </button>
+              <button 
+                onClick={copyScript}
+                className="px-4 py-2 border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <Code className="w-4 h-4" /> Copy Script
+              </button>
             </div>
           </div>
         )}
