@@ -151,10 +151,12 @@ export default function AdDownloadTool() {
     reader.readAsArrayBuffer(file);
   };
 
-  const copyToClipboard = async (text: string) => {
+const copyToClipboard = async (text: string, successMessage?: string) => {
+    // Use the custom message, or fallback to a truncated version of the text if it's too long
+    const message = successMessage || `Copied: ${text.length > 50 ? text.substring(0, 50) + '...' : text}`;
     try {
       await navigator.clipboard.writeText(text);
-      showToast(`Copied: ${text}`);
+      showToast(message);
     } catch (err) {
       const textArea = document.createElement("textarea");
       textArea.value = text;
@@ -162,7 +164,7 @@ export default function AdDownloadTool() {
       textArea.select();
       document.execCommand("copy");
       document.body.removeChild(textArea);
-      showToast(`Copied: ${text}`);
+      showToast(message);
     }
   };
 
@@ -176,14 +178,14 @@ export default function AdDownloadTool() {
       }
     }
 
-    copyToClipboard(ad.finalName);
+    copyToClipboard(ad.finalName, `Copied: ${ad.finalName}`);
     window.open(downloadUrl, "downloadWindow", "width=900,height=700,left=200,top=100");
 
     setAds(prev => prev.map(item => item.adNo === ad.adNo ? { ...item, downloaded: true } : item));
   };
   const copyAllNames = () => {
     const names = ads.map(ad => ad.finalName).join('\n');
-    copyToClipboard(names);
+    copyToClipboard(names, `All ${ads.length} names copied to clipboard!`);
   };
 
 const getBucketData = () => {
@@ -254,7 +256,7 @@ const getBucketData = () => {
       output += r.bucket + "\t" + r.ads.map((a: string) => "'" + a + "'").join(",") + "\n";
     });
 
-    copyToClipboard(output);
+        copyToClipboard(output, "Bucket table copied to clipboard!");
   };
 
   const copyScript = async () => {
@@ -272,7 +274,7 @@ const getBucketData = () => {
       script += "}\n\n";
     });
 
-    copyToClipboard(script);
+     copyToClipboard(script, "Script copied to clipboard!");
   };
 
   const pendingAds = ads.filter(a => !a.downloaded);
@@ -367,7 +369,7 @@ const getBucketData = () => {
                       </td>
                       <td className="p-4 flex justify-end gap-2">
                         <button 
-                          onClick={() => copyToClipboard(ad.finalName)}
+                          onClick={() => copyToClipboard(ad.finalName, `Copied: ${ad.finalName}`)}
                           className="px-4 py-2 border border-zinc-700 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
                         >
                           <Copy className="w-4 h-4" /> Copy
@@ -397,7 +399,7 @@ const getBucketData = () => {
                           </td>
                           <td className="p-4 flex justify-end gap-2">
                             <button 
-                              onClick={() => copyToClipboard(ad.finalName)}
+                              onClick={() => copyToClipboard(ad.finalName, `Copied: ${ad.finalName}`)}
                               className="px-4 py-2 border border-zinc-700 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
                             >
                               <Copy className="w-4 h-4" /> Copy
