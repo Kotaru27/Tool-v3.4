@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
 
   return {
-    base: '/Tool-v3/',   // ⭐ REQUIRED for GitHub Pages
+    base: '/Tool-v3.4/',   // ⭐ REQUIRED for GitHub Pages
 
     plugins: [react(), tailwindcss()],
 
