@@ -36,7 +36,6 @@ export default function PdfConvert() {
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const abortCtrlRef = useRef<AbortController | null>(null);
 
@@ -70,43 +69,6 @@ export default function PdfConvert() {
       setIsProcessing(false);
       abortCtrlRef.current = null;
     }
-  };
-
-  const duplicatePage = (pdfId: string, pageToDuplicate: PdfPage) => {
-    setPdfs((prev) => prev.map(p => {
-      if (p.id !== pdfId) return p;
-      const newPage: PdfPage = {
-        ...pageToDuplicate,
-        num: Math.max(...p.pages.map(pg => pg.num)) + 1,
-        url: Core.BlobRegistry.create(pageToDuplicate.blob)
-      };
-      return { ...p, pages: [...p.pages, newPage] };
-    }));
-  };
-
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number, pdfId: string) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-    
-    setPdfs((prev) => prev.map(p => {
-      if (p.id !== pdfId) return p;
-      const newPages = [...p.pages];
-      const draggedItem = newPages[draggedIndex];
-      newPages.splice(draggedIndex, 1);
-      newPages.splice(dropIndex, 0, draggedItem);
-      return { ...p, pages: newPages };
-    }));
-    setDraggedIndex(null);
   };
 
   const processSinglePdf = async (file: File, format: string, signal: AbortSignal) => {
@@ -253,7 +215,7 @@ export default function PdfConvert() {
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">PDF Convert</h2>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start">
         <div className="flex flex-col gap-[20px] sticky top-0 overflow-y-auto max-h-[calc(100vh-100px)] pr-[5px]">
           <div
             className="drop-zone"
@@ -327,11 +289,7 @@ export default function PdfConvert() {
               return (
                 <div 
                   key={page.num} 
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDrop={(e) => handleDrop(e, index, activePdfData.id)}
-                  className={`border border-[var(--color-border-color)] bg-[var(--color-bg-panel)] rounded-[var(--radius-app)] overflow-hidden flex flex-col transition duration-200 hover:border-[#404040] cursor-grab active:cursor-grabbing ${draggedIndex === index ? 'opacity-50 scale-95' : ''}`}
+                  className={`border border-[var(--color-border-color)] bg-[var(--color-bg-panel)] rounded-[var(--radius-app)] overflow-hidden flex flex-col transition duration-200 hover:border-[#404040]`}
                 >
                   <img src={page.url} className="w-full block cursor-pointer aspect-[16/9] object-contain bg-[#050505] border-b border-[var(--color-border-color)] pointer-events-none" alt={`Page ${page.num}`} onClick={() => window.open(page.url, '_blank')} />
                   <div className="p-[12px] flex flex-col gap-[8px] bg-[var(--color-bg-panel)]">
@@ -345,11 +303,10 @@ export default function PdfConvert() {
                       </div>
                     </div>
                     <div className="flex gap-[8px]">
-                      <button className="liquid-btn px-[8px] py-[4px] flex-1 text-[0.75rem]" onClick={() => duplicatePage(activePdfData.id, page)}><Copy className="w-3 h-3" /> Duplicate</button>
-                      <button className="liquid-btn danger-btn px-[8px] py-[4px] text-[0.75rem]" onClick={() => {
+                      <button className="liquid-btn danger-btn px-[8px] py-[4px] flex-1 text-[0.75rem]" onClick={() => {
                         URL.revokeObjectURL(page.url);
                         setPdfs((prev) => prev.map((p) => p.id === activePdfData.id ? { ...p, pages: p.pages.filter((pg) => pg.num !== page.num) } : p));
-                      }}><Trash2 className="w-3 h-3" /></button>
+                      }}><Trash2 className="w-3 h-3" /> Remove</button>
                     </div>
                   </div>
                 </div>

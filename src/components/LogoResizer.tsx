@@ -31,7 +31,6 @@ export default function LogoResizer() {
   const [isExporting, setIsExporting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,47 +68,12 @@ export default function LogoResizer() {
     setCards((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
   };
 
-  const duplicateCard = (cardToDuplicate: CardData) => {
-    setCards((prev) => {
-      const newCard: CardData = {
-        ...cardToDuplicate,
-        id: Math.random().toString(36).substr(2, 9),
-        fname: `${cardToDuplicate.fname}_Copy`
-      };
-      return [...prev, newCard];
-    });
-  };
-
   const removeCard = (id: string) => {
     setCards((prev) => {
       const card = prev.find((c) => c.id === id);
       if (card) URL.revokeObjectURL(card.url);
       return prev.filter((c) => c.id !== id);
     });
-  };
-
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-    
-    setCards((prev) => {
-      const newCards = [...prev];
-      const draggedItem = newCards[draggedIndex];
-      newCards.splice(draggedIndex, 1);
-      newCards.splice(dropIndex, 0, draggedItem);
-      return newCards;
-    });
-    setDraggedIndex(null);
   };
 
   const clearAll = () => {
@@ -212,7 +176,7 @@ export default function LogoResizer() {
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Logo Resizer</h2>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start">
         <div className="flex flex-col gap-[20px] sticky top-0 overflow-y-auto max-h-[calc(100vh-100px)] pr-[5px]">
           <div
             className="drop-zone"
@@ -281,7 +245,6 @@ export default function LogoResizer() {
                 index={index}
                 updateCard={updateCard} 
                 removeCard={removeCard} 
-                duplicateCard={duplicateCard}
                 drawCard={drawCard} 
                 exportWidth={exportWidth} 
                 exportHeight={exportHeight} 
@@ -289,10 +252,6 @@ export default function LogoResizer() {
                 isBold={isBold} 
                 fontColor={fontColor} 
                 globalPadding={globalPadding} 
-                draggedIndex={draggedIndex}
-                handleDragStart={handleDragStart}
-                handleDragOver={handleDragOver}
-                handleDrop={handleDrop}
               />
             ))
           )}
@@ -302,7 +261,7 @@ export default function LogoResizer() {
   );
 }
 
-const LogoCard = React.memo(function LogoCard({ card, index, updateCard, removeCard, duplicateCard, drawCard, exportWidth, exportHeight, globalFontSize, isBold, fontColor, globalPadding, draggedIndex, handleDragStart, handleDragOver, handleDrop }: any) {
+const LogoCard = React.memo(function LogoCard({ card, index, updateCard, removeCard, drawCard, exportWidth, exportHeight, globalFontSize, isBold, fontColor, globalPadding }: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -325,11 +284,7 @@ const LogoCard = React.memo(function LogoCard({ card, index, updateCard, removeC
 
   return (
     <div 
-      draggable
-      onDragStart={(e) => handleDragStart(e, index)}
-      onDragOver={(e) => handleDragOver(e, index)}
-      onDrop={(e) => handleDrop(e, index)}
-      className={`bg-[var(--color-bg-panel)] border border-[var(--color-border-color)] flex flex-col rounded-[var(--radius-app)] overflow-hidden transition duration-200 hover:border-[#404040] cursor-grab active:cursor-grabbing ${draggedIndex === index ? 'opacity-50 scale-95' : ''}`}
+      className={`bg-[var(--color-bg-panel)] border border-[var(--color-border-color)] flex flex-col rounded-[var(--radius-app)] overflow-hidden transition duration-200 hover:border-[#404040]`}
     >
       <div className="bg-[#050505] flex items-center justify-center aspect-square overflow-hidden p-[12px] relative pointer-events-none" style={{
         backgroundImage: 'linear-gradient(45deg, #0A0A0A 25%, transparent 25%), linear-gradient(-45deg, #0A0A0A 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0A0A0A 75%), linear-gradient(-45deg, transparent 75%, #0A0A0A 75%)',
@@ -338,7 +293,7 @@ const LogoCard = React.memo(function LogoCard({ card, index, updateCard, removeC
         <canvas ref={canvasRef} className="max-w-full max-h-full object-contain" style={{ aspectRatio: `${exportWidth}/${exportHeight}` }} />
       </div>
       <div className="p-[16px] flex flex-col gap-[12px] border-t border-[var(--color-border-color)] bg-[var(--color-bg-panel)]">
-        <textarea className="liquid-input" rows={2} placeholder="Label" value={card.text} onChange={(e) => updateCard(card.id, { text: e.target.value })} />
+        <textarea className="liquid-input" rows={2} placeholder="Label" value={card.text} onChange={(e) => updateCard(card.id, { text: e.target.value, fname: Core.Utils.sanitize(e.target.value) })} />
         <div className="flex gap-[10px]">
           <input className="liquid-input flex-[2]" placeholder="Filename" value={card.fname} onChange={(e) => updateCard(card.id, { fname: Core.Utils.sanitize(e.target.value) })} />
           <input type="number" className="liquid-input flex-1" placeholder="Size" value={card.hasLocalFont ? card.fontSize : ''} onChange={(e) => {
@@ -371,7 +326,6 @@ const LogoCard = React.memo(function LogoCard({ card, index, updateCard, removeC
         </div>
         <div className="flex gap-[10px] mt-[4px]">
           <button className="liquid-btn flex-1" onClick={downloadSingle}><Download className="w-4 h-4" /> Download</button>
-          <button className="liquid-btn px-[12px]" onClick={() => duplicateCard(card)}><Copy className="w-4 h-4" /></button>
           <button className="liquid-btn danger-btn px-[12px]" onClick={() => removeCard(card.id)}><Trash2 className="w-4 h-4" /></button>
         </div>
       </div>

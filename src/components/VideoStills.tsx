@@ -28,7 +28,6 @@ export default function VideoStills() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,43 +35,6 @@ export default function VideoStills() {
     const valid = Array.from(files).filter((f) => f.type.startsWith('video/'));
     if (!valid.length) return;
     setQueue((prev) => [...prev, ...valid]);
-  };
-
-  const duplicateFrame = (video: VideoData, frameToDuplicate: StillFrame) => {
-    setVideos((prev) => prev.map(v => {
-      if (v.id !== video.id) return v;
-      const newFrame: StillFrame = {
-        ...frameToDuplicate,
-        num: Math.max(...v.frames.map(f => f.num)) + 1,
-        url: Core.BlobRegistry.create(frameToDuplicate.blob)
-      };
-      return { ...v, frames: [...v.frames, newFrame] };
-    }));
-  };
-
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number, videoId: string) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-    
-    setVideos((prev) => prev.map(v => {
-      if (v.id !== videoId) return v;
-      const newFrames = [...v.frames];
-      const draggedItem = newFrames[draggedIndex];
-      newFrames.splice(draggedIndex, 1);
-      newFrames.splice(dropIndex, 0, draggedItem);
-      return { ...v, frames: newFrames };
-    }));
-    setDraggedIndex(null);
   };
 
   const process = async () => {
@@ -228,7 +190,7 @@ export default function VideoStills() {
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Video Stills</h2>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start">
         <div className="flex flex-col gap-[20px] sticky top-0 overflow-y-auto max-h-[calc(100vh-100px)] pr-[5px]">
           <div
             className="drop-zone"
@@ -307,11 +269,7 @@ export default function VideoStills() {
             {activeVideoData.frames.map((frame, index) => (
               <div 
                 key={frame.num} 
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDrop={(e) => handleDrop(e, index, activeVideoData.id)}
-                className={`border border-[var(--color-border-color)] bg-[var(--color-bg-panel)] rounded-[var(--radius-app)] overflow-hidden flex flex-col transition duration-200 hover:border-[#404040] cursor-grab active:cursor-grabbing ${draggedIndex === index ? 'opacity-50 scale-95' : ''}`}
+                className={`border border-[var(--color-border-color)] bg-[var(--color-bg-panel)] rounded-[var(--radius-app)] overflow-hidden flex flex-col transition duration-200 hover:border-[#404040]`}
               >
                 <img src={frame.url} className="w-full block cursor-pointer aspect-[16/9] object-contain bg-[#050505] border-b border-[var(--color-border-color)] pointer-events-none" alt={`Frame ${frame.num}`} onClick={() => window.open(frame.url, '_blank')} />
                 <div className="p-[12px] flex flex-col gap-[8px] bg-[var(--color-bg-panel)]">
@@ -320,11 +278,10 @@ export default function VideoStills() {
                     <input type="checkbox" className="toggle-switch small" checked={frame.checked} onChange={(e) => toggleFrame(frame.num, e.target.checked)} />
                   </div>
                   <div className="flex gap-[8px]">
-                    <button className="liquid-btn px-[8px] py-[4px] flex-1 text-[0.75rem]" onClick={() => duplicateFrame(activeVideoData, frame)}><Copy className="w-3 h-3" /> Duplicate</button>
-                    <button className="liquid-btn danger-btn px-[8px] py-[4px] text-[0.75rem]" onClick={() => {
+                    <button className="liquid-btn danger-btn px-[8px] py-[4px] flex-1 text-[0.75rem]" onClick={() => {
                       URL.revokeObjectURL(frame.url);
                       setVideos((prev) => prev.map((v) => v.id === activeVideoData.id ? { ...v, frames: v.frames.filter((f) => f.num !== frame.num) } : v));
-                    }}><Trash2 className="w-3 h-3" /></button>
+                    }}><Trash2 className="w-3 h-3" /> Remove</button>
                   </div>
                 </div>
               </div>

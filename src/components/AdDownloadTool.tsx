@@ -281,154 +281,155 @@ const getBucketData = () => {
   const downloadedAds = ads.filter(a => a.downloaded);
 
   return (
-    <div className="w-full bg-zinc-950 text-zinc-100 p-8 font-sans rounded-xl border border-zinc-800">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="border-b border-zinc-800 pb-6">
-          <h1 className="text-3xl font-bold text-red-500 flex items-center gap-3">
-            <FileSpreadsheet className="w-8 h-8" />
-            Ad Download Dashboard
-          </h1>
-          <p className="text-zinc-400 mt-2">Upload your Excel tracking sheet to generate standardized filenames and download assets.</p>
-        </div>
+    <div className="flex flex-col h-full relative">
+      <div className="flex items-center gap-[10px] mb-[20px] pb-[15px] border-b border-[var(--color-border-color)]">
+        <FileSpreadsheet className="w-5 h-5 text-white" />
+        <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Ad Download Dashboard</h2>
+      </div>
+      <p className="text-[var(--color-text-muted)] mt-[-10px] mb-[20px] text-sm">Upload your Excel tracking sheet to generate standardized filenames and download assets.</p>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-lg">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div 
-              className="flex-1 min-w-[250px] border-2 border-dashed border-zinc-700 hover:border-red-500 hover:bg-red-500/5 rounded-lg p-6 text-center cursor-pointer transition-colors flex items-center justify-center gap-3 text-zinc-400"
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-            >
-              <Upload className="w-5 h-5" />
-              <span>{file ? file.name : "Click or drag Excel file here (.xlsx)"}</span>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
-                accept=".xlsx, .xls" 
-                onChange={handleFileChange} 
-              />
-            </div>
+      <div className="glass-panel flex flex-col gap-[16px] mb-[24px]">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div 
+            className="drop-zone flex-1 min-w-[250px] flex items-center justify-center gap-3"
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }}
+            onDragLeave={(e) => e.currentTarget.classList.remove('drag-over')}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('drag-over');
+              handleDrop(e as unknown as React.DragEvent<HTMLDivElement>);
+            }}
+          >
+            <Upload className="w-5 h-5" />
+            <span>{file ? file.name : "Click or drag Excel file here (.xlsx)"}</span>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept=".xlsx, .xls" 
+              onChange={handleFileChange} 
+            />
+          </div>
+          <button 
+            onClick={processExcel}
+            className="liquid-btn active-mode h-[72px] px-6"
+          >
+            <CheckCircle2 className="w-5 h-5" />
+            Build Dashboard
+          </button>
+        </div>
+      </div>
+
+      {ads.length > 0 && (
+        <div className="glass-panel flex items-center justify-between gap-4 flex-wrap mb-[24px]">
+          <div className="text-[var(--color-success)] px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 bg-[rgba(16,185,129,0.1)]">
+            <CheckCircle2 className="w-4 h-4" />
+            {ads.length} Ads Detected
+          </div>
+          
+          <div className="flex items-center gap-3">
             <button 
-              onClick={processExcel}
-              className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors h-[72px]"
+              onClick={copyAllNames}
+              className="liquid-btn"
             >
-              <CheckCircle2 className="w-5 h-5" />
-              Build Dashboard
+              <Copy className="w-4 h-4" /> Copy All Names
+            </button>
+            <button 
+              onClick={copyBucketTable}
+              className="liquid-btn"
+            >
+              <List className="w-4 h-4" /> Copy Bucket Table
+            </button>
+            <button 
+              onClick={copyScript}
+              className="liquid-btn border-[var(--color-success)] text-[var(--color-success)] hover:bg-[rgba(16,185,129,0.1)]"
+            >
+              <Code className="w-4 h-4" /> Copy Script
             </button>
           </div>
         </div>
+      )}
 
       {ads.length > 0 && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
-            <div className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
-              {ads.length} Ads Detected
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={copyAllNames}
-                className="px-4 py-2 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <Copy className="w-4 h-4" /> Copy All Names
-              </button>
-              <button 
-                onClick={copyBucketTable}
-                className="px-4 py-2 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <List className="w-4 h-4" /> Copy Bucket Table
-              </button>
-              <button 
-                onClick={copyScript}
-                className="px-4 py-2 border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <Code className="w-4 h-4" /> Copy Script
-              </button>
-            </div>
-          </div>
-        )}
-
-        {ads.length > 0 && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-lg">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-zinc-950 border-b border-zinc-800">
-                  <tr>
-                    <th className="p-4 text-zinc-400 font-medium">Ad No</th>
-                    <th className="p-4 text-zinc-400 font-medium">Generated Name</th>
-                    <th className="p-4 text-zinc-400 font-medium text-right">Actions</th>
+        <div className="glass-panel overflow-hidden p-0 mb-[24px]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-[var(--color-bg-main)] border-b border-[var(--color-border-color)]">
+                <tr>
+                  <th className="p-4 text-[var(--color-text-muted)] font-medium text-sm">Ad No</th>
+                  <th className="p-4 text-[var(--color-text-muted)] font-medium text-sm">Generated Name</th>
+                  <th className="p-4 text-[var(--color-text-muted)] font-medium text-sm text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border-color)]">
+                {pendingAds.map(ad => (
+                  <tr key={ad.adNo} className="hover:bg-[var(--color-bg-main)] transition-colors">
+                    <td className="p-4 font-medium text-sm">{ad.adNo}</td>
+                    <td className="p-4 font-mono text-sm">
+                      {ad.cleanName}<span className="text-[var(--color-text-muted)]">{ad.ext}</span>
+                    </td>
+                    <td className="p-4 flex justify-end gap-2">
+                      <button 
+                        onClick={() => copyToClipboard(ad.finalName, `Copied: ${ad.finalName}`)}
+                        className="liquid-btn"
+                      >
+                        <Copy className="w-4 h-4" /> Copy
+                      </button>
+                      <button 
+                        onClick={() => handleDownload(ad)}
+                        className="liquid-btn active-mode"
+                      >
+                        <Download className="w-4 h-4" /> Download
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {pendingAds.map(ad => (
-                    <tr key={ad.adNo} className="hover:bg-zinc-800/50 transition-colors">
-                      <td className="p-4 font-medium">{ad.adNo}</td>
-                      <td className="p-4 font-mono text-sm">
-                        {ad.cleanName}<span className="text-zinc-500">{ad.ext}</span>
-                      </td>
-                      <td className="p-4 flex justify-end gap-2">
-                        <button 
-                          onClick={() => copyToClipboard(ad.finalName, `Copied: ${ad.finalName}`)}
-                          className="px-4 py-2 border border-zinc-700 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
-                        >
-                          <Copy className="w-4 h-4" /> Copy
-                        </button>
-                        <button 
-                          onClick={() => handleDownload(ad)}
-                          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
-                        >
-                          <Download className="w-4 h-4" /> Download
-                        </button>
+                ))}
+                
+                {downloadedAds.length > 0 && (
+                  <>
+                    <tr className="bg-[var(--color-bg-main)]">
+                      <td colSpan={3} className="p-4 text-[var(--color-success)] font-medium text-sm uppercase tracking-wider">
+                        Downloaded Ads
                       </td>
                     </tr>
-                  ))}
-                  
-                  {downloadedAds.length > 0 && (
-                    <>
-                      <tr className="bg-zinc-950/50">
-                        <td colSpan={3} className="p-4 text-emerald-500 font-medium text-sm uppercase tracking-wider">
-                          Downloaded Ads
+                    {downloadedAds.map(ad => (
+                      <tr key={ad.adNo} className="bg-[var(--color-bg-main)] opacity-60 hover:opacity-100 transition-opacity">
+                        <td className="p-4 font-medium text-sm">{ad.adNo}</td>
+                        <td className="p-4 font-mono text-sm line-through decoration-[var(--color-text-muted)]">
+                          {ad.cleanName}<span className="text-[var(--color-text-muted)]">{ad.ext}</span>
+                        </td>
+                        <td className="p-4 flex justify-end gap-2">
+                          <button 
+                            onClick={() => copyToClipboard(ad.finalName, `Copied: ${ad.finalName}`)}
+                            className="liquid-btn"
+                          >
+                            <Copy className="w-4 h-4" /> Copy
+                          </button>
+                          <button 
+                            onClick={() => handleDownload(ad)}
+                            className="liquid-btn border-[var(--color-success)] text-[var(--color-success)] hover:bg-[rgba(16,185,129,0.1)]"
+                          >
+                            <Download className="w-4 h-4" /> Redownload
+                          </button>
                         </td>
                       </tr>
-                      {downloadedAds.map(ad => (
-                        <tr key={ad.adNo} className="bg-zinc-900/50 opacity-60 hover:opacity-100 transition-opacity">
-                          <td className="p-4 font-medium">{ad.adNo}</td>
-                          <td className="p-4 font-mono text-sm line-through decoration-zinc-600">
-                            {ad.cleanName}<span className="text-zinc-500">{ad.ext}</span>
-                          </td>
-                          <td className="p-4 flex justify-end gap-2">
-                            <button 
-                              onClick={() => copyToClipboard(ad.finalName, `Copied: ${ad.finalName}`)}
-                              className="px-4 py-2 border border-zinc-700 hover:bg-zinc-800 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
-                            >
-                              <Copy className="w-4 h-4" /> Copy
-                            </button>
-                            <button 
-                              onClick={() => handleDownload(ad)}
-                              className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
-                            >
-                              <Download className="w-4 h-4" /> Redownload
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    ))}
+                  </>
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Toast */}
-        {toast.show && (
-          <div className="fixed bottom-6 right-6 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="font-medium">{toast.message}</span>
-          </div>
-        )}
-      </div>
+      {/* Toast */}
+      {toast.show && (
+        <div className="fixed bottom-6 right-6 bg-[var(--color-success)] text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 z-50">
+          <CheckCircle2 className="w-5 h-5" />
+          <span className="font-medium text-sm">{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,7 +41,7 @@ export default function AdLinkGen() {
       }
     });
 
-    setOutAds(ads.join('\n\n'));
+    setOutAds(ads.join('\n'));
     setOutStory(story.join('\n'));
   };
 
@@ -64,7 +64,7 @@ export default function AdLinkGen() {
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Ad Link Gen</h2>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start">
         <div className="flex flex-col gap-[20px] sticky top-0 overflow-y-auto max-h-[calc(100vh-100px)] pr-[5px]">
           <div className="glass-panel flex flex-col gap-[16px]">
             <span className="label-header">Server</span>
@@ -93,7 +93,12 @@ export default function AdLinkGen() {
               <span className="label-header mb-0">Ad Exposure</span>
               <button className="liquid-btn h-[28px] text-[0.75rem] px-[12px]" onClick={() => copy(outAds, 'ads')}>{copiedAds ? 'Copied!' : 'Copy'}</button>
             </div>
-            <textarea className="liquid-input terminal-input min-h-[150px]" readOnly value={outAds} />
+            <textarea 
+              className="liquid-input terminal-input min-h-[150px]" 
+              readOnly 
+              value={outAds} 
+              rows={Math.max(5, outAds.split('\n').length)}
+            />
           </div>
           
           <div className="glass-panel flex flex-col gap-[16px]">
@@ -101,7 +106,12 @@ export default function AdLinkGen() {
               <span className="label-header mb-0">Storyboard Code</span>
               <button className="liquid-btn h-[28px] text-[0.75rem] px-[12px]" onClick={() => copy(outStory, 'story')}>{copiedStory ? 'Copied!' : 'Copy'}</button>
             </div>
-            <textarea className="liquid-input terminal-input min-h-[150px]" readOnly value={outStory} />
+            <textarea 
+              className="liquid-input terminal-input min-h-[150px]" 
+              readOnly 
+              value={outStory} 
+              rows={Math.max(5, outStory.split('\n').length)}
+            />
           </div>
         </div>
       </div>

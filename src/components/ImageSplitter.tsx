@@ -23,7 +23,6 @@ export default function ImageSplitter() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,41 +40,6 @@ export default function ImageSplitter() {
     }));
 
     setItems((prev) => [...newItems, ...prev]);
-  };
-
-  const duplicateItem = (itemToDuplicate: SplitItem) => {
-    setItems((prev) => {
-      const newItem: SplitItem = {
-        ...itemToDuplicate,
-        id: Math.random().toString(36).substr(2, 9),
-        splitBlobs: [...itemToDuplicate.splitBlobs]
-      };
-      return [...prev, newItem];
-    });
-  };
-
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-    
-    setItems((prev) => {
-      const newItems = [...prev];
-      const draggedItem = newItems[draggedIndex];
-      newItems.splice(draggedIndex, 1);
-      newItems.splice(dropIndex, 0, draggedItem);
-      return newItems;
-    });
-    setDraggedIndex(null);
   };
 
   const clearAll = () => {
@@ -207,7 +171,7 @@ export default function ImageSplitter() {
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Image Splitter</h2>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-[24px] items-start">
         <div className="flex flex-col gap-[20px] sticky top-0 overflow-y-auto max-h-[calc(100vh-100px)] pr-[5px]">
           <div
             className="drop-zone"
@@ -263,11 +227,7 @@ export default function ImageSplitter() {
             items.map((item, index) => (
               <div 
                 key={item.id} 
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDrop={(e) => handleDrop(e, index)}
-                className={`bg-[var(--color-bg-panel)] border border-[var(--color-border-color)] flex flex-col rounded-[var(--radius-app)] overflow-hidden transition duration-200 hover:border-[#404040] cursor-grab active:cursor-grabbing ${draggedIndex === index ? 'opacity-50 scale-95' : ''}`}
+                className={`bg-[var(--color-bg-panel)] border border-[var(--color-border-color)] flex flex-col rounded-[var(--radius-app)] overflow-hidden transition duration-200 hover:border-[#404040]`}
               >
                 <div className="bg-[#050505] flex items-center justify-center aspect-square overflow-hidden p-[12px] relative pointer-events-none" style={{
                   backgroundImage: 'linear-gradient(45deg, #0A0A0A 25%, transparent 25%), linear-gradient(-45deg, #0A0A0A 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0A0A0A 75%), linear-gradient(-45deg, transparent 75%, #0A0A0A 75%)',
@@ -291,11 +251,10 @@ export default function ImageSplitter() {
                     {item.splitBlobs.length > 0 ? `Done (${item.splitBlobs.length})` : 'Ready'}
                   </div>
                   <div className="flex gap-[10px] mt-[4px]">
-                    <button className="liquid-btn px-[12px] flex-1" onClick={() => duplicateItem(item)}><Copy className="w-4 h-4" /> Duplicate</button>
-                    <button className="liquid-btn danger-btn px-[12px]" onClick={() => {
+                    <button className="liquid-btn danger-btn px-[12px] flex-1" onClick={() => {
                       URL.revokeObjectURL(item.url);
                       setItems((p) => p.filter((x) => x.id !== item.id));
-                    }}><Trash2 className="w-4 h-4" /></button>
+                    }}><Trash2 className="w-4 h-4" /> Remove</button>
                   </div>
                 </div>
               </div>

@@ -35,7 +35,6 @@ export default function Storyboard() {
   const [confirmDeleteProject, setConfirmDeleteProject] = useState<number | null>(null);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,20 +57,6 @@ export default function Storyboard() {
         name: `Board_${prev.length + 1}`,
         images: [],
         settings: { gap: 0, width: 1920, autoWidth: true, bgColor: '#ffffff', columns: 'auto', fitMode: 'cover' },
-      };
-      return [...prev, newProject];
-    });
-    setActiveProjectId(id);
-  };
-
-  const duplicateProject = (projectToDuplicate: StoryProject) => {
-    const id = Date.now() + Math.random();
-    setProjects((prev) => {
-      const newProject: StoryProject = {
-        ...projectToDuplicate,
-        id,
-        name: `${projectToDuplicate.name}_Copy`,
-        images: projectToDuplicate.images.map(img => ({ ...img, id: Math.random().toString(36).substr(2, 9) }))
       };
       return [...prev, newProject];
     });
@@ -163,29 +148,6 @@ export default function Storyboard() {
     const newImages = [...activeProject.images];
     [newImages[idx], newImages[t]] = [newImages[t], newImages[idx]];
     updateActiveProject({ images: newImages });
-  };
-
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex || !activeProject) return;
-    
-    const newImages = [...activeProject.images];
-    const draggedItem = newImages[draggedIndex];
-    newImages.splice(draggedIndex, 1);
-    newImages.splice(dropIndex, 0, draggedItem);
-    
-    updateActiveProject({ images: newImages });
-    setDraggedIndex(null);
   };
 
   const removeImage = (idx: number) => {
@@ -466,7 +428,7 @@ export default function Storyboard() {
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Storyboard</h2>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_280px] gap-[24px] items-start h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_280px] gap-[24px] items-start">
         <div className="flex flex-col gap-[20px] sticky top-0 overflow-y-auto max-h-[calc(100vh-100px)] pr-[5px]">
           <div className="glass-panel mb-[20px]">
             <div className="flex flex-col gap-[8px] mb-[16px]">
@@ -478,7 +440,6 @@ export default function Storyboard() {
                 >
                   <span className="truncate flex-1">{p.name}</span>
                   <div className="flex items-center gap-[4px]">
-                    <span className={`opacity-50 hover:opacity-100 p-[2px] ${p.id === activeProjectId ? 'text-black' : 'text-white'}`} title="Duplicate" onClick={(e) => { e.stopPropagation(); duplicateProject(p); }}><Copy className="w-3.5 h-3.5" /></span>
                     <span className={`opacity-50 hover:opacity-100 p-[2px] ${p.id === activeProjectId ? 'text-black' : 'text-white'}`} title="Delete" onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}><X className="w-4 h-4" /></span>
                   </div>
                 </div>
@@ -578,11 +539,7 @@ export default function Storyboard() {
                 {activeProject?.images.map((item, index) => (
                   <div 
                     key={item.id} 
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDrop={(e) => handleDrop(e, index)}
-                    className={`flex justify-between items-center p-[10px_12px] bg-[var(--color-bg-input)] border border-[var(--color-border-color)] text-[0.85rem] rounded-[6px] transition duration-200 text-white cursor-grab active:cursor-grabbing ${draggedIndex === index ? 'opacity-50 scale-95' : ''}`}
+                    className={`flex justify-between items-center p-[10px_12px] bg-[var(--color-bg-input)] border border-[var(--color-border-color)] text-[0.85rem] rounded-[6px] transition duration-200 text-white`}
                   >
                     <div className="flex items-center gap-[10px] pointer-events-none">
                       <img src={item.img.src} className="w-[30px] h-[30px] object-cover rounded-[4px]" alt={`Asset ${index + 1}`} />
