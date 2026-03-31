@@ -153,7 +153,7 @@ export default function LogoResizer() {
   }, [exportWidth, exportHeight, fontColor, globalFontSize, isBold]);
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col relative">
       <ConfirmModal
         isOpen={showConfirm}
         title="Reset All"

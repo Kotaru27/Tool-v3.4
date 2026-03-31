@@ -192,7 +192,7 @@ export default function PdfConvert() {
   const activePdfData = pdfs.find((p) => p.id === selectedPdf);
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col relative">
       <ConfirmModal
         isOpen={showConfirm}
         title="Clear All PDFs"

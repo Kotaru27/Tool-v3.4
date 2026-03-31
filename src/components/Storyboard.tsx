@@ -397,7 +397,7 @@ export default function Storyboard() {
   };
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col relative">
       <ConfirmModal
         isOpen={confirmDeleteProject !== null}
         title="Delete Board"

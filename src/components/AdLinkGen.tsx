@@ -58,7 +58,7 @@ export default function AdLinkGen() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <div className="flex items-center gap-[10px] mb-[20px] pb-[15px] border-b border-[var(--color-border-color)]">
         <Link2 className="w-5 h-5 text-white" />
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Ad Link Gen</h2>

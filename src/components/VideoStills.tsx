@@ -167,7 +167,7 @@ export default function VideoStills() {
   const activeVideoData = videos.find((v) => v.id === selectedVideo);
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col relative">
       <ConfirmModal
         isOpen={showConfirm}
         title="Reset All"

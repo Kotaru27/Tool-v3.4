@@ -281,7 +281,7 @@ const getBucketData = () => {
   const downloadedAds = ads.filter(a => a.downloaded);
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col relative">
       <div className="flex items-center gap-[10px] mb-[20px] pb-[15px] border-b border-[var(--color-border-color)]">
         <FileSpreadsheet className="w-5 h-5 text-white" />
         <h2 className="m-0 text-[1.1rem] font-semibold flex-1 leading-none text-white tracking-tight">Ad Download Dashboard</h2>
