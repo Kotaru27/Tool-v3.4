@@ -25,7 +25,7 @@ export default function LogoResizer() {
   const [isBold, setIsBold] = useState<boolean>(false);
   const [fontColor, setFontColor] = useState<string>('#000000');
   const [globalImgPos, setGlobalImgPos] = useState<number>(0);
-  const [globalPadding, setGlobalPadding] = useState<number>(20);
+  const [globalPadding, setGlobalPadding] = useState<number>(0);
   const [exportWidth, setExportWidth] = useState<number>(200);
   const [exportHeight, setExportHeight] = useState<number>(200);
   const [isExporting, setIsExporting] = useState(false);
